@@ -1,4 +1,6 @@
-TELEGRAM_BOT_TOKEN = "8269352590AAGWuBZdoIRPeiedUkdOH4xsfHPdDhGrzhM"
+import os
+TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN")
+
 ECAP_LOGIN_URL = "https://webprosindia.com/vignanpharma/default.aspx"
 ECAP_ACADEMIC_REGISTER_URL = "https://webprosindia.com/vignanpharma/StudentAcademicRegistration.aspx"
 ECAP_ATTENDANCE_URL = "https://webprosindia.com/vignanpharma/StudentMaster.aspx"
