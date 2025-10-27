@@ -3,7 +3,9 @@ ECAP_LOGIN_URL = "https://webprosindia.com/vignanpharma/default.aspx"
 ECAP_ACADEMIC_REGISTER_URL = "https://webprosindia.com/vignanpharma/StudentAcademicRegistration.aspx"
 ECAP_ATTENDANCE_URL = "https://webprosindia.com/vignanpharma/StudentMaster.aspx"
 
-ENCRYPTION_KEY = "ZJKhu4qp0DFyorw1bnqTqL6GQ4RTNEooaUm8EjVQitE"  # paste your encryption key here as a string
+import os
+ENCRYPTION_KEY = os.environ.get("ENCRYPTION_KEY")
+ # paste your encryption key here as a string
 SESSION_TIMEOUT = 86400  # 24 hours
 ADMIN_USER_ID = None
 
