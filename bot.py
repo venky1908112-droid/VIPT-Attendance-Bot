@@ -75,7 +75,6 @@ async def receive_password(update: Update, context: ContextTypes.DEFAULT_TYPE):
             "❌ Password must be at least 4 characters.\nPlease try again:"
         )
         return PASSWORD
-
     # Attempt login (simulate)
     if scraper.login(username, password):
         creds_manager.save_credentials(user_id, username, password)
@@ -191,5 +190,23 @@ def main():
         print("4. Wait a few minutes and try again")
         print(f"\nBot token starts with: {TELEGRAM_BOT_TOKEN[:15]}...")
 
+# ---- Flask server for Render ----
+from flask import Flask
+import threading
+import os
+
+app = Flask(__name__)
+
+@app.route("/")
+def home():
+    return "VIPT Telegram Bot is running."
+
+def run_flask():
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
+
 if __name__ == '__main__':
+    # Start Flask server in the background
+    threading.Thread(target=run_flask).start()
+    # Start the Telegram bot
     main()
