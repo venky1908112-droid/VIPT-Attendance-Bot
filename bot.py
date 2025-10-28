@@ -88,6 +88,7 @@ async def receive_password(update: Update, context: ContextTypes.DEFAULT_TYPE):
         )
         return ConversationHandler.END
     else:
+        creds_manager.delete_credentials(user_id)
         await update.message.reply_text(
             "❌ **Login Failed!**\n\nInvalid roll number or password.\n"
             "Please try again:\n\nEnter your Roll Number:",
