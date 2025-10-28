@@ -157,43 +157,7 @@ async def logout(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def error_handler(update: object, context: ContextTypes.DEFAULT_TYPE):
     print(f'Update {update} caused error {context.error}')
 
-def main():
-    print("🤖 Starting VIPT Attendance Bot...")
-    try:
-        application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
-        # Conversation handler for login
-        login_conv_handler = ConversationHandler(
-            entry_points=[CommandHandler('login', login)],
-            states={
-                USERNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_username)],
-                PASSWORD: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_password)],
-            },
-            fallbacks=[CommandHandler('cancel', cancel)],
-        )
-        # Add handlers
-        application.add_handler(CommandHandler("start", start))
-        application.add_handler(CommandHandler("help", help_command))
-        application.add_handler(login_conv_handler)
-        application.add_handler(CommandHandler("attendance", attendance))
-        application.add_handler(CommandHandler("update", update_attendance))
-        application.add_handler(CommandHandler("logout", logout))
-        application.add_error_handler(error_handler)
-        print("✅ Bot is running! Press Ctrl+C to stop.")
-        print("📱 Open Telegram and search for your bot.")
-        print("💬 Send /start to begin!")
-        application.run_polling(allowed_updates=["message", "callback_query"])
-    except Exception as e:
-        print(f"❌ Error starting bot: {e}")
-        print("\n⚠️ TROUBLESHOOTING:")
-        print("1. Check your internet connection")
-        print("2. Check if Telegram is accessible in your region")
-        print("3. Verify your bot token is correct")
-        print("4. Wait a few minutes and try again")
-        print(f"\nBot token starts with: {TELEGRAM_BOT_TOKEN[:15]}...")
-
-# ---- Flask server for Render ----
 from flask import Flask
-import threading
 import os
 
 app = Flask(__name__)
@@ -202,28 +166,36 @@ app = Flask(__name__)
 def home():
     return "VIPT Telegram Bot is running."
 
-def run_flask():
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
-
 if __name__ == "__main__":
-    print("Starting VIPT Attendance Bot...")
+    print("🤖 Starting VIPT Attendance Bot...")
     try:
-        application = Application.builder().token(TELEGRAMBOTTOKEN).build()
-        # Add all handlers here as in your code...
-
-        # Instead of run_polling, use run_webhook
+        application = Application.builder().token(TELEGRAM_BOT_TOKEN).build()
+        login_conv_handler = ConversationHandler(
+            entry_points=[CommandHandler('login', login)],
+            states={
+                USERNAME: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_username)],
+                PASSWORD: [MessageHandler(filters.TEXT & ~filters.COMMAND, receive_password)],
+            },
+            fallbacks=[CommandHandler('cancel', cancel)],
+        )
+        application.add_handler(CommandHandler("start", start))
+        application.add_handler(CommandHandler("help", help_command))
+        application.add_handler(login_conv_handler)
+        application.add_handler(CommandHandler("attendance", attendance))
+        application.add_handler(CommandHandler("update", update_attendance))
+        application.add_handler(CommandHandler("logout", logout))
+        application.add_error_handler(error_handler)
+        # --- Webhook ONLY for cloud ---
         application.run_webhook(
             listen="0.0.0.0",
             port=int(os.environ.get("PORT", "10000")),
             webhook_url="https://vipt-attendance-bot.onrender.com/"
         )
     except Exception as e:
-        print(f"Error starting bot: {e}")
-        print("TROUBLESHOOTING:")
+        print(f"❌ Error starting bot: {e}")
+        print("\n⚠️ TROUBLESHOOTING:")
         print("1. Check your internet connection")
         print("2. Check if Telegram is accessible in your region")
         print("3. Verify your bot token is correct")
         print("4. Wait a few minutes and try again")
-        print(f"token starts with: {TELEGRAMBOTTOKEN[:15]}...")
-
+        print(f"\nBot token starts with: {TELEGRAM_BOT_TOKEN[:15]}...")
