@@ -1,12 +1,25 @@
-from cryptography.fernet import Fernet
 import json
 import time
+from cryptography.fernet import Fernet
 from config import ENCRYPTION_KEY, SESSION_TIMEOUT
+
+CREDENTIALS_FILE = "credentials_store.json"
 
 class CredentialsManager:
     def __init__(self):
         self.cipher = Fernet(ENCRYPTION_KEY.encode())
-        self.credentials_store = {}
+        self.credentials_store = self.load_store()
+
+    def load_store(self):
+        try:
+            with open(CREDENTIALS_FILE, "r") as f:
+                return json.load(f)
+        except FileNotFoundError:
+            return {}
+
+    def save_store(self):
+        with open(CREDENTIALS_FILE, "w") as f:
+            json.dump(self.credentials_store, f)
 
     def encrypt_data(self, data):
         json_data = json.dumps(data)
@@ -17,8 +30,7 @@ class CredentialsManager:
         try:
             decrypted = self.cipher.decrypt(encrypted_data.encode())
             return json.loads(decrypted.decode())
-        except Exception as e:
-            print("[DEBUG] Decryption failed:", e)
+        except:
             return None
 
     def save_credentials(self, user_id, username, password):
@@ -29,14 +41,15 @@ class CredentialsManager:
             'timestamp': time.time()
         }
         encrypted = self.encrypt_data(data)
-        self.credentials_store[user_id] = encrypted
+        self.credentials_store[str(user_id)] = encrypted
+        self.save_store()
         return True
 
     def get_credentials(self, user_id):
         print(f"[DEBUG] Getting creds for user_id: {user_id}")
-        if user_id not in self.credentials_store:
+        if str(user_id) not in self.credentials_store:
             return None
-        encrypted = self.credentials_store[user_id]
+        encrypted = self.credentials_store[str(user_id)]
         data = self.decrypt_data(encrypted)
         if not data:
             return None
@@ -50,8 +63,9 @@ class CredentialsManager:
 
     def delete_credentials(self, user_id):
         print(f"[DEBUG] Deleting creds for user_id: {user_id}")
-        if user_id in self.credentials_store:
-            del self.credentials_store[user_id]
+        if str(user_id) in self.credentials_store:
+            del self.credentials_store[str(user_id)]
+            self.save_store()
             return True
         return False
 
@@ -59,9 +73,9 @@ class CredentialsManager:
         return self.get_credentials(user_id) is not None
 
     def get_session_time_remaining(self, user_id):
-        if user_id not in self.credentials_store:
+        if str(user_id) not in self.credentials_store:
             return 0
-        encrypted = self.credentials_store[user_id]
+        encrypted = self.credentials_store[str(user_id)]
         data = self.decrypt_data(encrypted)
         if not data:
             return 0
