@@ -206,8 +206,24 @@ def run_flask():
     port = int(os.environ.get("PORT", 10000))
     app.run(host="0.0.0.0", port=port)
 
-if __name__ == '__main__':
-    # Start Flask server in the background
-    threading.Thread(target=run_flask).start()
-    # Start the Telegram bot
-    main()
+if __name__ == "__main__":
+    print("Starting VIPT Attendance Bot...")
+    try:
+        application = Application.builder().token(TELEGRAMBOTTOKEN).build()
+        # Add all handlers here as in your code...
+
+        # Instead of run_polling, use run_webhook
+        application.run_webhook(
+            listen="0.0.0.0",
+            port=int(os.environ.get("PORT", "10000")),
+            webhook_url="https://vipt-attendance-bot.onrender.com/"
+        )
+    except Exception as e:
+        print(f"Error starting bot: {e}")
+        print("TROUBLESHOOTING:")
+        print("1. Check your internet connection")
+        print("2. Check if Telegram is accessible in your region")
+        print("3. Verify your bot token is correct")
+        print("4. Wait a few minutes and try again")
+        print(f"token starts with: {TELEGRAMBOTTOKEN[:15]}...")
+
